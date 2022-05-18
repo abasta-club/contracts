@@ -9,7 +9,17 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 /// @author Alvaro Fariña <farinalvaro@gmail.com>
 /// @notice implements the ERC1155 standard for AbastaDAO
 contract AbastaDAOToken is ERC1155, Ownable, ERC1155Supply {
-    constructor() ERC1155("") {}
+
+    string public constant  name = "Abasta DAO Token";
+    string public constant symbol = "ABT";
+
+    constructor()
+        ERC1155(
+            "https://ipfs.io/ipfs/bafkreidu6rvsvmtatpsszjoc5wlhfnakqjzlipiuy2gefljktn23nmxopu"
+        )
+    {
+        mint(msg.sender, 1, 300);
+    }
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);
@@ -18,19 +28,17 @@ contract AbastaDAOToken is ERC1155, Ownable, ERC1155Supply {
     function mint(
         address to,
         uint256 id,
-        uint256 amount,
-        bytes memory data
+        uint256 amount
     ) public onlyOwner {
-        _mint(to, id, amount, data);
+        _mint(to, id, amount, "0x00");
     }
 
     function mintBatch(
         address to,
         uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] memory amounts
     ) public onlyOwner {
-        _mintBatch(to, ids, amounts, data);
+        _mintBatch(to, ids, amounts, "0x00");
     }
 
     // The following functions are overrides required by Solidity.

@@ -15,7 +15,7 @@ async function main() {
 
   // We get the contract to deploy
   const AbastaDAOToken = await ethers.getContractFactory("AbastaDAOToken");
-  const abastaDAOToken = await AbastaDAOToken.deploy("Hello, Hardhat!");
+  const abastaDAOToken = await AbastaDAOToken.deploy();
 
   await abastaDAOToken.deployed();
 
