@@ -21,15 +21,23 @@ contract AbastaDAOToken is ERC1155, Ownable, ERC1155Supply {
     uint256 public constant PARTNER = 1;
     uint256 public constant SUPPORTER = 2;
 
+    /* ========== STATE VARIABLES ========== */
+    IERC20 public paymentToken;
+    uint256 subscriptionFee;
+
     /* ========== EVENTS ========== */
     event UriSet(address account, string uri);
+    event PaymentTokenSet(address indexed account, address token);
+    event SubscriptionFeeSet(address indexed account, uint256 fee);
+    event FundsWithdrawn(address indexed account, uint256 amount);
 
-    constructor()
+    constructor(IERC20 _paymentToken, uint256 _subscriptionFee)
         ERC1155(
             "https://ipfs.io/ipfs/bafkreidu6rvsvmtatpsszjoc5wlhfnakqjzlipiuy2gefljktn23nmxopu"
         )
     {
-        mint(msg.sender, 1, 300);
+        paymentToken = _paymentToken;
+        subscriptionFee = _subscriptionFee;
     }
 
     // The following functions are overrides required by Solidity.
@@ -55,17 +63,34 @@ contract AbastaDAOToken is ERC1155, Ownable, ERC1155Supply {
         uint256 id,
         uint256 amount
     ) public {
+        paymentToken.transferFrom(msg.sender, address(this), subscriptionFee);
+
         _mint(to, id, amount, "0x00");
     }
 
     /// @notice allows owner to set the URI of the token
     function setURI(string memory _uri) public onlyOwner {
         _setURI(_uri);
+
         emit UriSet(msg.sender, _uri);
     }
 
     /// @notice allows owner to withdraw funds from contract
     function withdrawFunds(address token, uint256 amount) public onlyOwner {
         IERC20(token).transfer(msg.sender, amount);
+
+        emit FundsWithdrawn(msg.sender, amount);
+    }
+
+    function setPaymentToken(IERC20 _paymentToken) public onlyOwner {
+        paymentToken = _paymentToken;
+
+        emit PaymentTokenSet(msg.sender, address(_paymentToken));
+    }
+
+    function setSubscriptionFee(uint256 _subscriptionFee) public onlyOwner {
+        subscriptionFee = _subscriptionFee;
+
+        emit SubscriptionFeeSet(msg.sender, _subscriptionFee);
     }
 }
