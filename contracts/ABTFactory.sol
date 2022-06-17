@@ -7,19 +7,16 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-/// @title AbastaDAOToken
+/// @title ABTFactory
 /// @author Alvaro Fariña <farinalvaro@gmail.com>
 /// @notice implements the ERC1155 standard for AbastaDAO
-contract AbastaDAOToken is ERC1155, Ownable, ERC1155Supply {
+contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     /* ========== LIBRARIES ========== */
     using SafeERC20 for IERC20;
 
     /* ========== CONSTANTS ========== */
-    string public constant name = "Abasta DAO Token";
+    string public constant name = "Abasta DAO";
     string public constant symbol = "ABT";
-
-    uint256 public constant PARTNER = 1;
-    uint256 public constant SUPPORTER = 2;
 
     /* ========== STATE VARIABLES ========== */
     IERC20 public paymentToken;
@@ -57,7 +54,7 @@ contract AbastaDAOToken is ERC1155, Ownable, ERC1155Supply {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
     /// @notice mints tokens to the given address
-    // TODO: restrict access only to whitelisted addresses
+    // TODO: restrict access only to MINTER_ROLE
     function mint(
         address to,
         uint256 id,
