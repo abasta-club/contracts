@@ -17,6 +17,8 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     /* ========== CONSTANTS ========== */
     string public constant name = "Abasta DAO";
     string public constant symbol = "ABT";
+    uint256 public constant PARTNER = 1;
+    uint256 public constant SUPPORTER = 2;
 
     /* ========== STATE VARIABLES ========== */
     IERC20 public paymentToken;
@@ -24,17 +26,47 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
 
     /* ========== EVENTS ========== */
     event UriSet(address account, string uri);
-    event PaymentTokenSet(address indexed account, address token);
-    event SubscriptionFeeSet(address indexed account, uint256 fee);
-    event FundsWithdrawn(address indexed account, uint256 amount);
+    event FundsWithdrawn(address indexed withdrawer, uint256 amount);
+    event PaymentTokenSet(address indexed setter, address newPaymentToken);
+    event SubscriptionFeeSet(
+        address indexed setter,
+        uint256 newSubscriptionFee
+    );
 
-    constructor(IERC20 _paymentToken, uint256 _subscriptionFee)
-        ERC1155(
-            "https://ipfs.io/ipfs/bafkreidu6rvsvmtatpsszjoc5wlhfnakqjzlipiuy2gefljktn23nmxopu"
-        )
-    {
+    constructor(
+        string memory _uri,
+        IERC20 _paymentToken,
+        uint256 _subscriptionFee,
+        address _owner
+    ) ERC1155(_uri) {
+        require(
+            address(_paymentToken) != address(0),
+            "ABTFactory: payment token is not valid"
+        );
+        require(
+            _subscriptionFee > 0,
+            "ABTFactory: subscription fee is not valid"
+        );
+
+        if (_owner != msg.sender && _owner != address(0)) {
+            transferOwnership(_owner);
+        }
+
         paymentToken = _paymentToken;
         subscriptionFee = _subscriptionFee;
+    }
+
+    /* ========== MODIFIERS ========== */
+    modifier onlyPartners() {
+        // TODO: require msg.sender to be on a whitelist
+        require(true, "ABTFactory: address not whitelisted as partner");
+        _;
+    }
+
+    modifier onlySupporters() {
+        // TODO: require msg.sender to be on a whitelist
+        require(true, "ABTFactory: address not whitelisted as supporter");
+        _;
     }
 
     // The following functions are overrides required by Solidity.
@@ -52,42 +84,55 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     // TODO: add function to swap from one token to another
     // it should burn the received token and mint a new one of the other type
 
-    /* ========== RESTRICTED FUNCTIONS ========== */
-    /// @notice mints tokens to the given address
-    // TODO: restrict access only to MINTER_ROLE
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount
-    ) public {
-        paymentToken.transferFrom(msg.sender, address(this), subscriptionFee);
-
-        _mint(to, id, amount, "0x00");
+    function isVolunteer(address) internal pure returns (bool) {
+        // TODO: check against a volunteer's whitelist
+        return true;
     }
+
+    /* ========== RESTRICTED FUNCTIONS ========== */
+
+    function claimPartnership(bool asVolunteer) external onlyPartners {
+        // TODO: require msg.sender to not own any tokens yet
+        if (asVolunteer) {
+            require(
+                isVolunteer(msg.sender),
+                "ABTFactory: address not whitelisted as volunteer"
+            );
+        } else {
+            paymentToken.transferFrom(
+                msg.sender,
+                address(this),
+                subscriptionFee
+            );
+        }
+        _mint(msg.sender, PARTNER, 1, "0x00");
+        // TODO: emit event
+    }
+
+    function claimSupporter(bool asVolunteer) external onlySupporters {
+        // TODO: require msg.sender to not own any tokens yet
+        if (asVolunteer) {
+            require(
+                isVolunteer(msg.sender),
+                "ABTFactory: address not whitelisted as volunteer"
+            );
+        } else {
+            paymentToken.transferFrom(
+                msg.sender,
+                address(this),
+                subscriptionFee
+            );
+        }
+        _mint(msg.sender, SUPPORTER, 1, "0x00");
+    }
+
+    // TODO: add restriction on transfer to only whitelisted addresses with no tokens
+    // could potentially move the modifiers restrictions on the mint functions to the transfer function
 
     /// @notice allows owner to set the URI of the token
     function setURI(string memory _uri) public onlyOwner {
         _setURI(_uri);
 
         emit UriSet(msg.sender, _uri);
-    }
-
-    /// @notice allows owner to withdraw funds from contract
-    function withdrawFunds(address token, uint256 amount) public onlyOwner {
-        IERC20(token).transfer(msg.sender, amount);
-
-        emit FundsWithdrawn(msg.sender, amount);
-    }
-
-    function setPaymentToken(IERC20 _paymentToken) public onlyOwner {
-        paymentToken = _paymentToken;
-
-        emit PaymentTokenSet(msg.sender, address(_paymentToken));
-    }
-
-    function setSubscriptionFee(uint256 _subscriptionFee) public onlyOwner {
-        subscriptionFee = _subscriptionFee;
-
-        emit SubscriptionFeeSet(msg.sender, _subscriptionFee);
     }
 }
