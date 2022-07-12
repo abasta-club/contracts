@@ -17,7 +17,11 @@ describe("AbastaDAOToken contract", () => {
     abtFactory: Contract,
     PaymentToken: ContractFactory,
     paymentToken: Contract,
-    owner: SignerWithAddress;
+    owner: SignerWithAddress,
+    partner: SignerWithAddress,
+    partnerVolunteer: SignerWithAddress,
+    supporter: SignerWithAddress,
+    supporterVolunteer: SignerWithAddress;
 
   before(async () => {
     [owner] = await ethers.getSigners();
@@ -43,6 +47,8 @@ describe("AbastaDAOToken contract", () => {
     it("Should set proper URI", async () => {
       const idRequest = 0;
       const uri = await abtFactory.uri(idRequest);
+      const paymentT = await abtFactory.paymentToken();
+      expect(paymentT).to.equal(paymentToken.address);
       expect(uri).to.equal(INITIAL_URI);
     });
   });
