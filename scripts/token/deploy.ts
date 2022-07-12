@@ -1,30 +1,33 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat"
+
+import networkConfig from "../../networkConfig"
+
+// FIXME: shouldn't be needed to get the network name, the config should export network data only
+const env: string = process.env.NETWORK_NAME || "local"
+
+const { uri, dai, membershipFee, owner } = networkConfig[env]
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
 
-  // We get the contract to deploy
-  // const AbastaDAOToken = await ethers.getContractFactory("AbastaDAOToken");
-  // const abastaDAOToken = await AbastaDAOToken.deploy();
+  console.log("🚀 About to deploy ABT Factory")
+  console.log("===========================================================")
+  console.log(`network: ${network.name}`)
+  console.log(`uri: ${uri}`)
+  console.log(`dai: ${dai}`)
+  console.log(`membershipFee: ${membershipFee}`)
+  console.log(`owner: ${owner}`)
+  const ABTFactory = await ethers.getContractFactory("ABTFactory")
+  const aBTFactory = await ABTFactory.deploy(uri, dai, membershipFee, owner)
 
-  // await abastaDAOToken.deployed();
+  await aBTFactory.deployed()
 
-  // console.log("AbastaDAOToken deployed to:", abastaDAOToken.address);
+  console.log("✅ ABTFactory deployed to:", aBTFactory.address)
+  console.log("===========================================================")
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  console.error(error)
+  process.exitCode = 1
+})
