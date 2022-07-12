@@ -22,21 +22,21 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
 
     /* ========== STATE VARIABLES ========== */
     IERC20 public paymentToken;
-    uint256 subscriptionFee;
+    uint256 membershipFee;
 
     /* ========== EVENTS ========== */
     event UriSet(address account, string uri);
     event FundsWithdrawn(address indexed withdrawer, uint256 amount);
     event PaymentTokenSet(address indexed setter, address newPaymentToken);
-    event SubscriptionFeeSet(
+    event MembershipFeeSet(
         address indexed setter,
-        uint256 newSubscriptionFee
+        uint256 newMembershipFee
     );
 
     constructor(
         string memory _uri,
         IERC20 _paymentToken,
-        uint256 _subscriptionFee,
+        uint256 _membershipFee,
         address _owner
     ) ERC1155(_uri) {
         require(
@@ -44,8 +44,8 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
             "ABTFactory: payment token is not valid"
         );
         require(
-            _subscriptionFee > 0,
-            "ABTFactory: subscription fee is not valid"
+            _membershipFee > 0,
+            "ABTFactory: membership fee is not valid"
         );
 
         if (_owner != msg.sender && _owner != address(0)) {
@@ -53,7 +53,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         }
 
         paymentToken = _paymentToken;
-        subscriptionFee = _subscriptionFee;
+        membershipFee = _membershipFee;
     }
 
     /* ========== MODIFIERS ========== */
@@ -102,7 +102,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
             paymentToken.transferFrom(
                 msg.sender,
                 address(this),
-                subscriptionFee
+                membershipFee
             );
         }
         _mint(msg.sender, PARTNER, 1, "0x00");
@@ -120,7 +120,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
             paymentToken.transferFrom(
                 msg.sender,
                 address(this),
-                subscriptionFee
+                membershipFee
             );
         }
         _mint(msg.sender, SUPPORTER, 1, "0x00");
