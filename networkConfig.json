@@ -1,0 +1,14 @@
+{
+  "local": {
+    "uri": "",
+    "dai": "0x0000000000000000000000000000000000000000",
+    "membershipFee": "0",
+    "owner": "0x0000000000000000000000000000000000000000"
+  },
+  "mumbai": {
+    "uri": "https://ipfs.io/ipfs/bafkreidu6rvsvmtatpsszjoc5wlhfnakqjzlipiuy2gefljktn23nmxopu",
+    "dai": "0x001b3b4d0f3714ca98ba10f6042daebf0b1b7b6f",
+    "membershipFee": "1000000000000000000",
+    "owner": "0x4f6729AEb1752Df4CA44b96E976db28a2b9451Fb"
+  }
+}
