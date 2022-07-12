@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "hardhat/console.sol";
 
 /// @title ABTFactory
 /// @author Alvaro Fariña <farinalvaro@gmail.com>
@@ -28,10 +29,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     event UriSet(address account, string uri);
     event FundsWithdrawn(address indexed withdrawer, uint256 amount);
     event PaymentTokenSet(address indexed setter, address newPaymentToken);
-    event MembershipFeeSet(
-        address indexed setter,
-        uint256 newMembershipFee
-    );
+    event MembershipFeeSet(address indexed setter, uint256 newMembershipFee);
 
     constructor(
         string memory _uri,
@@ -39,14 +37,8 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         uint256 _membershipFee,
         address _owner
     ) ERC1155(_uri) {
-        require(
-            address(_paymentToken) != address(0),
-            "ABTFactory: payment token is not valid"
-        );
-        require(
-            _membershipFee > 0,
-            "ABTFactory: membership fee is not valid"
-        );
+        require(address(_paymentToken) != address(0), "ABTFactory: payment token is not valid");
+        require(_membershipFee > 0, "ABTFactory: membership fee is not valid");
 
         if (_owner != msg.sender && _owner != address(0)) {
             transferOwnership(_owner);
@@ -92,36 +84,21 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     /* ========== RESTRICTED FUNCTIONS ========== */
 
     function claimPartnership(bool asVolunteer) external onlyPartners {
-        // TODO: require msg.sender to not own any tokens yet
+        // console.log("asVolunteer: ", asVolunteer);
         if (asVolunteer) {
-            require(
-                isVolunteer(msg.sender),
-                "ABTFactory: address not whitelisted as volunteer"
-            );
+            require(isVolunteer(msg.sender), "ABTFactory: address not whitelisted as volunteer");
         } else {
-            paymentToken.transferFrom(
-                msg.sender,
-                address(this),
-                membershipFee
-            );
+            paymentToken.safeTransferFrom(msg.sender, address(this), membershipFee);
         }
         _mint(msg.sender, PARTNER, 1, "0x00");
         // TODO: emit event
     }
 
     function claimSupporter(bool asVolunteer) external onlySupporters {
-        // TODO: require msg.sender to not own any tokens yet
         if (asVolunteer) {
-            require(
-                isVolunteer(msg.sender),
-                "ABTFactory: address not whitelisted as volunteer"
-            );
+            require(isVolunteer(msg.sender), "ABTFactory: address not whitelisted as volunteer");
         } else {
-            paymentToken.transferFrom(
-                msg.sender,
-                address(this),
-                membershipFee
-            );
+            paymentToken.safeTransferFrom(msg.sender, address(this), membershipFee);
         }
         _mint(msg.sender, SUPPORTER, 1, "0x00");
     }
