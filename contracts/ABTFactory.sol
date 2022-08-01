@@ -112,4 +112,8 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
 
         emit UriSet(msg.sender, _uri);
     }
+
+    function mint(address _to, uint256 _id, uint256 _amount) external onlyOwner {
+        _mint(_to, _id, _amount, "0x00");
+    }
 }
