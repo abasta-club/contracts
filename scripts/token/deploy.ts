@@ -2,10 +2,7 @@ import { ethers, network } from "hardhat"
 
 import networkConfig from "../../networkConfig"
 
-// FIXME: shouldn't be needed to get the network name, the config should export network data only
-const env: string = process.env.NETWORK_NAME || "local"
-
-const { uri, dai, membershipFee, owner } = networkConfig[env]
+const { ABTFactory: { uri, paymentToken, membershipFee, owner } } = networkConfig
 
 async function main() {
 
@@ -13,11 +10,11 @@ async function main() {
   console.log("===========================================================")
   console.log(`network: ${network.name}`)
   console.log(`uri: ${uri}`)
-  console.log(`dai: ${dai}`)
+  console.log(`paymentToken: ${paymentToken}`)
   console.log(`membershipFee: ${membershipFee}`)
   console.log(`owner: ${owner}`)
   const ABTFactory = await ethers.getContractFactory("ABTFactory")
-  const aBTFactory = await ABTFactory.deploy(uri, dai, membershipFee, owner)
+  const aBTFactory = await ABTFactory.deploy(uri, paymentToken, membershipFee, owner)
 
   await aBTFactory.deployed()
 
