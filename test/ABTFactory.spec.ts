@@ -64,7 +64,7 @@ describe("AbastaDAOToken contract", () => {
     })
   })
 
-  describe("Should mint tokend on claim", () => {
+  describe("Should mint token on claim", () => {
     it("Should mint supporter token", async () => {
 
       const approveTx = await paymentToken

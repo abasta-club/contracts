@@ -30,6 +30,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     event FundsWithdrawn(address indexed withdrawer, uint256 amount);
     event PaymentTokenSet(address indexed setter, address newPaymentToken);
     event MembershipFeeSet(address indexed setter, uint256 newMembershipFee);
+    event TokenClaimed(address indexed account, uint256 tokenId);
 
     constructor(
         string memory _uri,
@@ -91,7 +92,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
             paymentToken.safeTransferFrom(msg.sender, address(this), membershipFee);
         }
         _mint(msg.sender, PARTNER, 1, "0x00");
-        // TODO: emit event
+        emit TokenClaimed(msg.sender, PARTNER);
     }
 
     function claimSupporter(bool asVolunteer) external onlySupporters {
@@ -101,6 +102,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
             paymentToken.safeTransferFrom(msg.sender, address(this), membershipFee);
         }
         _mint(msg.sender, SUPPORTER, 1, "0x00");
+        emit TokenClaimed(msg.sender, SUPPORTER);
     }
 
     // TODO: add restriction on transfer to only whitelisted addresses with no tokens
@@ -113,7 +115,11 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         emit UriSet(msg.sender, _uri);
     }
 
-    function mint(address _to, uint256 _id, uint256 _amount) external onlyOwner {
+    function mint(
+        address _to,
+        uint256 _id,
+        uint256 _amount
+    ) external onlyOwner {
         _mint(_to, _id, _amount, "0x00");
     }
 }
