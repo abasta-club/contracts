@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "npx hardhat build",
+    "coverage": "npx hardhat coverage",
+    "compile": "npx hardhat compile",
+    "compile:clean": "npx hardhat clean && npx hardhat compile",
     "test": "npx hardhat test"
   },
   "keywords": [],
