@@ -8,10 +8,10 @@ const PAYMENT_TOKEN_NAME = "Payment Token"
 const PAYMENT_TOKEN_SYMBOL = "PTOK"
 const PAYMENT_TOKEN_SUPPLY = parseEther("1000000")
 
-const INITIAL_URI =
+const URI =
   "https://ipfs.io/ipfs/bafkreidu6rvsvmtatpsszjoc5wlhfnakqjzlipiuy2gefljktn23nmxopu"
-const INITIAL_SUBS_FEE = parseEther("100")
-const PAYMENT_TOKEN_USRES_BALANCE = parseEther("200")
+const MEMBERSHIP_FEE = parseEther("100")
+const PAYMENT_TOKEN_USERS_BALANCE = parseEther("200")
 const PARTNER_ID = 1
 const SUPPORTER_ID = 2
 
@@ -20,6 +20,7 @@ describe("AbastaDAOToken contract", () => {
     abtFactory: Contract,
     PaymentToken: ContractFactory,
     paymentToken: Contract,
+    // users
     owner: SignerWithAddress,
     partner: SignerWithAddress,
     partnerVolunteer: SignerWithAddress,
@@ -38,17 +39,16 @@ describe("AbastaDAOToken contract", () => {
     await paymentToken.deployed()
 
     // distribute payment tokens to users
-    await paymentToken.transfer(partner.address, PAYMENT_TOKEN_USRES_BALANCE)
-    await paymentToken.transfer(partnerVolunteer.address, PAYMENT_TOKEN_USRES_BALANCE)
-    await paymentToken.transfer(supporter.address, PAYMENT_TOKEN_USRES_BALANCE)
-    await paymentToken.transfer(supporterVolunteer.address, PAYMENT_TOKEN_USRES_BALANCE)
-
+    await paymentToken.transfer(partner.address, PAYMENT_TOKEN_USERS_BALANCE)
+    await paymentToken.transfer(partnerVolunteer.address, PAYMENT_TOKEN_USERS_BALANCE)
+    await paymentToken.transfer(supporter.address, PAYMENT_TOKEN_USERS_BALANCE)
+    await paymentToken.transfer(supporterVolunteer.address, PAYMENT_TOKEN_USERS_BALANCE)
 
     ABTFactory = await ethers.getContractFactory("ABTFactory")
     abtFactory = await ABTFactory.deploy(
-      INITIAL_URI,
+      URI,
       paymentToken.address,
-      INITIAL_SUBS_FEE,
+      MEMBERSHIP_FEE,
       owner.address
     )
     await abtFactory.deployed()
@@ -58,39 +58,84 @@ describe("AbastaDAOToken contract", () => {
     it("Should set proper URI", async () => {
       const idRequest = 0
       const uri = await abtFactory.uri(idRequest)
+      expect(uri).to.equal(URI)
+    })
+
+    it("Should set proper membership fee", async () => {
+      const membFee = await abtFactory.membershipFee()
+      expect(membFee).to.equal(MEMBERSHIP_FEE)
+    })
+
+    it("Should set proper owner", async () => {
+      const contractOwner = await abtFactory.owner()
+      expect(contractOwner).to.equal(owner.address)
+    })
+
+    it("Should set proper payment token", async () => {
       const paymentT = await abtFactory.paymentToken()
       expect(paymentT).to.equal(paymentToken.address)
-      expect(uri).to.equal(INITIAL_URI)
     })
   })
 
-  describe("Should mint token on claim", () => {
-    it("Should mint supporter token", async () => {
+  describe.skip("Token claim ", () => {
+    describe("Supporter", () => {
+      it("Should be able to claim as supporter", async () => {
+        const approveTx = await paymentToken
+          .connect(supporter)
+          .approve(abtFactory.address, MEMBERSHIP_FEE)
+        await approveTx.wait()
 
-      const approveTx = await paymentToken
-        .connect(supporter)
-        .approve(abtFactory.address, INITIAL_SUBS_FEE)
-      await approveTx.wait()
+        const claimTx = await abtFactory.connect(supporter).claimSupporter(false)
+        await claimTx.wait()
 
-      const claimTx = await abtFactory.connect(supporter).claimSupporter(false)
-      await claimTx.wait()
-
-      const balance = await abtFactory.balanceOf(supporter.address, SUPPORTER_ID)
-      expect(Number(balance.toString())).to.eql(1)
+        const balance = await abtFactory.balanceOf(supporter.address, SUPPORTER_ID)
+        expect(Number(balance.toString())).to.eql(1)
+      })
+      it.skip("Should not be able to claim if not whitelisted", async () => { })
+      it.skip("Should not be able to claim more than 1", async () => { })
     })
 
-    it("Should mint partner token", async () => {
+    describe("Partner", () => {
+      it("Should be able to claim as partner", async () => {
+        const approveTx = await paymentToken
+          .connect(partner)
+          .approve(abtFactory.address, MEMBERSHIP_FEE)
+        await approveTx.wait()
 
-      const approveTx = await paymentToken
-        .connect(partner)
-        .approve(abtFactory.address, INITIAL_SUBS_FEE)
-      await approveTx.wait()
+        const claimTx = await abtFactory.connect(partner).claimPartner(false)
+        await claimTx.wait()
 
-      const claimTx = await abtFactory.connect(partner).claimPartnership(false)
-      await claimTx.wait()
+        const balance = await abtFactory.balanceOf(partner.address, PARTNER_ID)
+        expect(Number(balance.toString())).to.eql(1)
+      })
 
-      const balance = await abtFactory.balanceOf(partner.address, PARTNER_ID)
-      expect(Number(balance.toString())).to.eql(1)
+      it("Should mint supporter token", async () => {
+        const approveTx = await paymentToken
+          .connect(supporter)
+          .approve(abtFactory.address, MEMBERSHIP_FEE)
+        await approveTx.wait()
+
+        const claimTx = await abtFactory.connect(supporter).claimSupporter(false)
+        await claimTx.wait()
+
+        const balance = await abtFactory.balanceOf(supporter.address, SUPPORTER_ID)
+        expect(Number(balance.toString())).to.eql(1)
+      })
+
+      it("Should mint partner token", async () => {
+        const approveTx = await paymentToken
+          .connect(partner)
+          .approve(abtFactory.address, MEMBERSHIP_FEE)
+        await approveTx.wait()
+
+        const claimTx = await abtFactory.connect(partner).claimPartnership(false)
+        await claimTx.wait()
+
+        const balance = await abtFactory.balanceOf(partner.address, PARTNER_ID)
+        expect(Number(balance.toString())).to.eql(1)
+      })
+
+
     })
 
     describe("Volunteers", () => {
@@ -108,6 +153,31 @@ describe("AbastaDAOToken contract", () => {
         const balance = await abtFactory.balanceOf(partnerVolunteer.address, PARTNER_ID)
         expect(Number(balance.toString())).to.eql(1)
       })
+      it.skip("Should not be able to claim if not whitelisted as volunteer", async () => {
+        // test both, partner and supporter
+      })
     })
+  })
+
+  describe("Restricted to owner", () => {
+    // test allowance to owner and not allowance non-owners
+    describe.skip("Set URI", () => {
+      it("Should be able to set uri", async () => {
+        const newURI = "newUri"
+        const setURITx = await abtFactory.connect(owner).setURI(newURI)
+        await setURITx.wait()
+
+        const uri = await abtFactory.uri(0)
+        expect(uri).to.equal(newURI)
+
+        await expect(setURITx).to.emit(abtFactory, "UriSet").withArgs(owner.address, newURI)
+      })
+
+      it("Should not be able to set uri as non owner", async () => { })
+    })
+
+    describe.skip("Set membership fee", () => { })
+    it("Should be able to mint any token to anyone", async () => { })
+    it("Should be able to set membership fee", async () => { })
   })
 })
