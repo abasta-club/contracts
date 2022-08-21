@@ -23,7 +23,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
 
     /* ========== STATE VARIABLES ========== */
     IERC20 public paymentToken;
-    uint256 membershipFee;
+    uint256 public membershipFee;
 
     /* ========== EVENTS ========== */
     event UriSet(address account, string uri);
@@ -115,11 +115,19 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         emit UriSet(msg.sender, _uri);
     }
 
+    /// @notice allows owner to mint any token to any address
     function mint(
         address _to,
         uint256 _id,
         uint256 _amount
     ) external onlyOwner {
         _mint(_to, _id, _amount, "0x00");
+    }
+
+    /// @notice allows owner to set membership fee
+    function setMembershipFee(uint256 _membershipFee) external onlyOwner {
+        require(_membershipFee > 0, "ABTFactory: membership fee is not valid");
+        membershipFee = _membershipFee;
+        emit MembershipFeeSet(msg.sender, _membershipFee);
     }
 }
