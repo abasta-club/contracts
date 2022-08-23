@@ -124,6 +124,14 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         _mint(_to, _id, _amount, "0x00");
     }
 
+    function mintBatch(
+        address _to,
+        uint256[] memory _ids,
+        uint256[] memory _amounts
+    ) external onlyOwner {
+        _mintBatch(_to, _ids, _amounts, "0x00");
+    }
+
     /// @notice allows owner to set membership fee
     function setMembershipFee(uint256 _membershipFee) external onlyOwner {
         require(_membershipFee > 0, "ABTFactory: membership fee is not valid");
