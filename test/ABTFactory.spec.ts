@@ -134,8 +134,6 @@ describe("AbastaDAOToken contract", () => {
         const balance = await abtFactory.balanceOf(partner.address, PARTNER_ID)
         expect(Number(balance.toString())).to.eql(1)
       })
-
-
     })
 
     describe("Volunteers", () => {
@@ -177,7 +175,8 @@ describe("AbastaDAOToken contract", () => {
     })
 
     describe.skip("Set membership fee", () => { })
-    it("Should be able to mint any token to anyone", async () => { })
-    it("Should be able to set membership fee", async () => { })
+    it.skip("Should be able to mint any token to anyone", async () => { })
+    it.skip("Should be able to mint a batch of tokens to anyone", async () => { })
+    it.skip("Should be able to set membership fee", async () => { })
   })
 })
