@@ -18,6 +18,9 @@
       "name": "Abasta payment token",
       "initialSupply": "1000000000000000000000000",
       "deployedAddress": "0x925c39c9528062ec7962e3066afc7bd9de87cda3"
+    },
+    "ABPoints": {
+      "deployedAddress": "0x0486B2c002701319F2B7742Dbc46a40b9d360bfD"
     }
   }
 }
