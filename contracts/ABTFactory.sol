@@ -18,6 +18,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     /* ========== CONSTANTS ========== */
     string public constant name = "Abasta DAO";
     string public constant symbol = "ABT";
+    // TODO: move membership types to enum
     uint256 public constant PARTNER = 1;
     uint256 public constant SUPPORTER = 2;
 
@@ -38,6 +39,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         uint256 _membershipFee,
         address _owner
     ) ERC1155(_uri) {
+        // TODO: make msgs shorter
         require(address(_paymentToken) != address(0), "ABTFactory: payment token is not valid");
         require(_membershipFee > 0, "ABTFactory: membership fee is not valid");
 
@@ -48,6 +50,8 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         paymentToken = _paymentToken;
         membershipFee = _membershipFee;
     }
+
+    // TODO: whiteslit mapping => enum type of member
 
     /* ========== MODIFIERS ========== */
     modifier onlyPartners() {
@@ -71,6 +75,7 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         uint256[] memory amounts,
         bytes memory data
     ) internal override(ERC1155, ERC1155Supply) {
+        // TODO: check account to be in whitelist
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
@@ -83,6 +88,11 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
+
+    // FIXME: unify claims into 1
+    // calculate and mint according to whitelists
+    // add recipient as parameter and check against whitelists -> this would allow anyone claim a token for anyone else
+    // add it also in the modifier
 
     function claimPartnership(bool asVolunteer) external onlyPartners {
         // console.log("asVolunteer: ", asVolunteer);
@@ -124,18 +134,14 @@ contract ABTFactory is ERC1155, Ownable, ERC1155Supply {
         _mint(_to, _id, _amount, "0x00");
     }
 
-    function mintBatch(
-        address _to,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyOwner {
-        _mintBatch(_to, _ids, _amounts, "0x00");
-    }
-
     /// @notice allows owner to set membership fee
     function setMembershipFee(uint256 _membershipFee) external onlyOwner {
         require(_membershipFee > 0, "ABTFactory: membership fee is not valid");
         membershipFee = _membershipFee;
         emit MembershipFeeSet(msg.sender, _membershipFee);
     }
+
+    // TODO: override tokenURI(id) function
 }
+
+// consider making this contract upgradable using  diamond pattern -> https://eips.ethereum.org/EIPS/eip-2535

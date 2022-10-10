@@ -8,14 +8,16 @@
   "mumbai": {
     "ABTFactory": {
       "uri": "https://ipfs.io/ipfs/bafkreidu6rvsvmtatpsszjoc5wlhfnakqjzlipiuy2gefljktn23nmxopu",
-      "paymentToken": "0x001b3b4d0f3714ca98ba10f6042daebf0b1b7b6f",
+      "paymentToken": "0x925c39c9528062ec7962e3066afc7bd9de87cda3",
       "membershipFee": "1000000000000000000",
-      "owner": "0x4f6729AEb1752Df4CA44b96E976db28a2b9451Fb"
+      "owner": "0x521111b8028958aE6e56C87339a39EB6D91e9160",
+      "deployedAddress": ""
     },
     "erc20PaymentToken": {
       "symbol": "APT",
       "name": "Abasta payment token",
-      "initialSupply": "1000000000000000000000000"
+      "initialSupply": "1000000000000000000000000",
+      "deployedAddress": "0x925c39c9528062ec7962e3066afc7bd9de87cda3"
     }
   }
 }

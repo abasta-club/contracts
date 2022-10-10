@@ -1,5 +1,6 @@
-const networkConfig = require("../networkConfig")
+const networkConfig = require("../networkConfig").default
 
+console.log({ networkConfig })
 const {
   ABTFactory: { uri, paymentToken, membershipFee, owner },
 } = networkConfig
